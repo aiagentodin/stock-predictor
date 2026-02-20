@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Predictor — ML-Powered Stock Screening</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e27;--bg2:#0f1435;--bg3:#141a42;--card:#12173d;
+  --border:rgba(255,255,255,0.06);--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --green:#00e676;--green2:#00c853;--yellow:#ffd740;--red:#ff5252;
+  --blue:#448aff;--purple:#b388ff;--cyan:#18ffff;--pink:#ff80ab;
+  --accent:linear-gradient(135deg,#448aff,#7c4dff);
+  --glow:0 0 20px rgba(68,138,255,0.3);
+  --glass:rgba(255,255,255,0.03);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.container{max-width:1400px;margin:0 auto;padding:0 24px}
+
+/* Header */
+.header{background:linear-gradient(180deg,rgba(15,20,53,0.98),rgba(10,14,39,0.95));
+  border-bottom:1px solid var(--border);padding:16px 0;position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.header .container{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{width:28px;height:28px}
+.brand h1{font-size:1.3rem;font-weight:800;background:var(--accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header-right{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.badge{padding:5px 12px;border-radius:20px;font-size:0.75rem;font-weight:600;display:flex;align-items:center;gap:5px}
+.badge-bullish{background:rgba(0,230,118,0.15);color:var(--green);border:1px solid rgba(0,230,118,0.3)}
+.badge-bearish{background:rgba(255,82,82,0.15);color:var(--red);border:1px solid rgba(255,82,82,0.3)}
+.badge-neutral{background:rgba(255,215,64,0.15);color:var(--yellow);border:1px solid rgba(255,215,64,0.3)}
+.badge-info{background:rgba(68,138,255,0.12);color:var(--blue);border:1px solid rgba(68,138,255,0.2)}
+.scan-time{color:var(--text3);font-size:0.8rem}
+
+/* Section */
+.section{margin:32px 0}
+.section-title{font-size:1.1rem;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.section-title .dot{width:8px;height:8px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue)}
+
+/* Toggle */
+.toggle-bar{display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:3px;margin-bottom:20px;width:fit-content}
+.toggle-btn{padding:8px 20px;border-radius:8px;border:none;background:transparent;color:var(--text2);font-family:inherit;font-weight:600;font-size:0.85rem;cursor:pointer;transition:all 0.3s}
+.toggle-btn.active{background:var(--accent);color:#fff;box-shadow:var(--glow)}
+
+/* Cards Grid */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.stock-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;
+  cursor:pointer;transition:all 0.4s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden}
+.stock-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--accent);opacity:0;transition:opacity 0.3s}
+.stock-card:hover{transform:translateY(-4px);border-color:rgba(68,138,255,0.3);box-shadow:var(--glow)}
+.stock-card:hover::before{opacity:1}
+.stock-card.expanded{grid-column:1/-1;max-width:600px}
+
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.ticker{font-size:1.5rem;font-weight:900;letter-spacing:-0.5px}
+.sector-tag{font-size:0.65rem;color:var(--text3);background:rgba(255,255,255,0.05);padding:2px 8px;border-radius:6px;margin-top:4px}
+.score-big{font-size:2.4rem;font-weight:900;line-height:1}
+.score-label{font-size:0.65rem;color:var(--text3);text-align:right}
+.score-green{color:var(--green)}
+.score-yellow{color:var(--yellow)}
+.score-red{color:var(--red)}
+
+.card-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.price{color:var(--text2);font-size:0.9rem;font-weight:500}
+.predicted-ret{font-weight:700;font-size:0.9rem}
+.ret-pos{color:var(--green)}
+.ret-neg{color:var(--red)}
+
+.signal-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.signal-strong{background:rgba(0,230,118,0.15);color:var(--green)}
+.signal-moderate{background:rgba(255,215,64,0.15);color:var(--yellow)}
+.signal-weak{background:rgba(255,82,82,0.15);color:var(--red)}
+
+/* Mini progress rings */
+.score-breakdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.mini-score{text-align:center}
+.mini-score .label{font-size:0.6rem;color:var(--text3);margin-bottom:4px;display:block}
+.ring-container{width:44px;height:44px;margin:0 auto}
+.ring-container svg{width:44px;height:44px;transform:rotate(-90deg)}
+.ring-container circle{fill:none;stroke-width:3}
+.ring-bg{stroke:rgba(255,255,255,0.06)}
+.ring-fg{stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)}
+.ring-value{font-size:0.7rem;font-weight:700;fill:var(--text)}
+
+/* Drivers */
+.drivers{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.driver{font-size:0.75rem;color:var(--text2);padding:2px 0;display:flex;align-items:center;gap:6px}
+.driver::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--cyan);flex-shrink:0}
+
+/* Expanded details */
+.card-details{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.stock-card.expanded .card-details{display:block}
+
+/* Sparkline */
+.sparkline{height:30px;margin:8px 0;opacity:0.6}
+.sparkline svg{width:100%;height:30px}
+.spark-line{fill:none;stroke:var(--blue);stroke-width:1.5}
+.spark-area{fill:url(#sparkGrad);opacity:0.3}
+
+/* Stats Grid */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.stat-value{font-size:1.8rem;font-weight:800;margin-bottom:4px}
+.stat-label{font-size:0.8rem;color:var(--text3)}
+
+/* Feature Importance */
+.fi-chart{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.fi-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.fi-label{width:120px;font-size:0.75rem;color:var(--text2);text-align:right;flex-shrink:0}
+.fi-bar-track{flex:1;height:22px;background:rgba(255,255,255,0.04);border-radius:6px;overflow:hidden;position:relative}
+.fi-bar{height:100%;border-radius:6px;transition:width 1.5s cubic-bezier(0.4,0,0.2,1);display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:0.65rem;font-weight:600;color:#fff}
+.fi-cat-tech{background:linear-gradient(90deg,#448aff,#7c4dff)}
+.fi-cat-momentum{background:linear-gradient(90deg,#00e676,#00c853)}
+.fi-cat-volume{background:linear-gradient(90deg,#ff80ab,#ff5252)}
+.fi-cat-volatility{background:linear-gradient(90deg,#ffd740,#ff9100)}
+.fi-cat-price{background:linear-gradient(90deg,#18ffff,#00b0ff)}
+
+/* Accuracy Panel */
+.accuracy-panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.acc-block{text-align:center}
+.acc-value{font-size:2.2rem;font-weight:900;color:var(--blue)}
+.acc-label{font-size:0.8rem;color:var(--text3);margin-top:4px}
+.acc-bar{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;margin-top:8px;overflow:hidden}
+.acc-fill{height:100%;border-radius:3px;background:var(--accent);transition:width 1.5s}
+
+/* How It Works */
+.how-section{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.how-toggle{width:100%;padding:18px 20px;background:none;border:none;color:var(--text);font-family:inherit;
+  font-size:0.95rem;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.how-toggle .arrow{transition:transform 0.3s;font-size:0.8rem;color:var(--text3)}
+.how-toggle.open .arrow{transform:rotate(180deg)}
+.how-content{padding:0 20px 20px;display:none;color:var(--text2);font-size:0.85rem;line-height:1.7}
+.how-content.open{display:block}
+.how-content h4{color:var(--text);margin:12px 0 6px;font-size:0.9rem}
+.how-content ul{padding-left:18px}
+
+/* Sector heat */
+.sector-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.sector-cell{padding:10px;border-radius:8px;text-align:center;font-size:0.75rem;font-weight:600}
+
+/* Animations */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.animate-in{animation:fadeInUp 0.5s ease-out forwards;opacity:0}
+.animate-in:nth-child(1){animation-delay:0.05s}
+.animate-in:nth-child(2){animation-delay:0.1s}
+.animate-in:nth-child(3){animation-delay:0.15s}
+.animate-in:nth-child(4){animation-delay:0.2s}
+.animate-in:nth-child(5){animation-delay:0.25s}
+
+/* Counter animation */
+.counter{display:inline-block}
+
+/* Responsive */
+@media(max-width:768px){
+  .cards-grid{grid-template-columns:1fr}
+  .accuracy-panel{grid-template-columns:1fr}
+  .header .container{flex-direction:column;align-items:flex-start}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .score-breakdown{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- SVG defs -->
+<svg width="0" height="0"><defs>
+  <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#448aff" stop-opacity="0.4"/>
+    <stop offset="100%" stop-color="#448aff" stop-opacity="0"/>
+  </linearGradient>
+</defs></svg>
+
+<!-- Header -->
+<header class="header">
+  <div class="container">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="url(#bolt)"/><defs><linearGradient id="bolt" x1="3" y1="2" x2="20" y2="22"><stop stop-color="#448aff"/><stop offset="1" stop-color="#7c4dff"/></linearGradient></defs></svg>
+      <h1>Stock Predictor</h1>
+    </div>
+    <div class="header-right">
+      <span class="scan-time" id="scanTime">—</span>
+      <span class="badge badge-info" id="regimeBadge">—</span>
+      <span class="badge badge-info" id="accBadge">—</span>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- Toggle -->
+  <div class="section">
+    <div class="toggle-bar">
+      <button class="toggle-btn active" data-view="1week" onclick="switchView('1week')">⚡ 1 Week</button>
+      <button class="toggle-btn" data-view="1month" onclick="switchView('1month')">📈 1 Month</button>
+    </div>
+  </div>
+
+  <!-- Top 5 Cards -->
+  <div class="section" id="cardsSection">
+    <div class="section-title"><span class="dot"></span><span id="cardsTitle">Top 5 — 1 Week Predictions</span></div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </div>
+
+  <!-- Market Overview -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>Market Overview</div>
+    <div class="stats-grid" id="statsGrid"></div>
+    <div style="margin-top:16px">
+      <div class="section-title" style="font-size:0.9rem"><span class="dot" style="background:var(--purple)"></span>Sector Heat Map</div>
+      <div class="sector-grid" id="sectorGrid"></div>
+    </div>
+  </div>
+
+  <!-- Feature Importance -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>Feature Importance</div>
+    <div class="fi-chart" id="fiChart"></div>
+  </div>
+
+  <!-- Model Performance -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>Model Performance</div>
+    <div class="accuracy-panel" id="accPanel"></div>
+  </div>
+
+  <!-- How It Works -->
+  <div class="section" style="margin-bottom:60px">
+    <div class="how-section">
+      <button class="how-toggle" onclick="toggleHow(this)">
+        <span>🔬 How It Works</span>
+        <span class="arrow">▼</span>
+      </button>
+      <div class="how-content" id="howContent">
+        <h4>Methodology</h4>
+        <p>Stock Predictor uses a LightGBM gradient-boosted ensemble to predict which S&P 500 stocks will outperform the market median over 1-week and 1-month horizons.</p>
+        <h4>Feature Categories</h4>
+        <ul>
+          <li><strong>Returns:</strong> 1d, 5d, 10d, 20d, 60d price returns</li>
+          <li><strong>Momentum:</strong> 1-month & 3-month momentum, RSI</li>
+          <li><strong>Technical:</strong> MACD, Bollinger Bands, SMA crossovers, Stochastic</li>
+          <li><strong>Volume:</strong> Relative volume, OBV, Money Flow Index</li>
+          <li><strong>Volatility:</strong> Realized vol, ATR, vol ratio, ADX</li>
+          <li><strong>Price Position:</strong> Distance from 52-week high/low</li>
+        </ul>
+        <h4>Model Architecture</h4>
+        <p>5-model ensemble with different random seeds, walk-forward trained on a rolling 2-year window. Features are cross-sectionally z-score normalized per date. Final score combines ML probability (50%), momentum (20%), volume (15%), and volatility (15%).</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ========== SAMPLE DATA (fallback) ==========
+const SAMPLE_DATA = {"generated_at":"2026-02-19T19:30:00","model_accuracy":{"1week":0.572,"1month":0.548},"top5_1week":[{"ticker":"NVDA","score":91,"ml_prob":0.82,"momentum":88,"volume":95,"volatility":72,"price":892.5,"predicted_return":4.8,"sector":"Technology","signal_strength":"strong","key_drivers":["Strong 1-month momentum","Volume surge","Near 52-week high"]},{"ticker":"META","score":86,"ml_prob":0.76,"momentum":82,"volume":88,"volatility":78,"price":612.3,"predicted_return":3.5,"sector":"Technology","signal_strength":"strong","key_drivers":["MACD bullish cross","High money flow","Above 200-day SMA"]},{"ticker":"AVGO","score":83,"ml_prob":0.73,"momentum":79,"volume":85,"volatility":80,"price":1845.2,"predicted_return":3.1,"sector":"Technology","signal_strength":"strong","key_drivers":["Strong trend (ADX)","Volume surge","Short-term uptrend (SMA 5>20)"]},{"ticker":"LLY","score":79,"ml_prob":0.69,"momentum":75,"volume":82,"volatility":76,"price":834.1,"predicted_return":2.6,"sector":"Healthcare","signal_strength":"strong","key_drivers":["RSI oversold bounce","Above 200-day SMA","High money flow"]},{"ticker":"GE","score":76,"ml_prob":0.67,"momentum":72,"volume":80,"volatility":74,"price":182.4,"predicted_return":2.2,"sector":"Industrials","signal_strength":"strong","key_drivers":["MACD bullish cross","Strong 1-month momentum","Near 52-week high"]}],"top5_1month":[{"ticker":"AMZN","score":88,"ml_prob":0.78,"momentum":85,"volume":90,"volatility":75,"price":228.9,"predicted_return":6.2,"sector":"Consumer Cyclical","signal_strength":"strong","key_drivers":["Strong 1-month momentum","High money flow","Above 200-day SMA"]},{"ticker":"COST","score":84,"ml_prob":0.74,"momentum":80,"volume":86,"volatility":82,"price":965.5,"predicted_return":5.1,"sector":"Consumer Defensive","signal_strength":"strong","key_drivers":["Near 52-week high","Strong trend (ADX)","Volume surge"]},{"ticker":"ORCL","score":81,"ml_prob":0.71,"momentum":77,"volume":84,"volatility":79,"price":178.3,"predicted_return":4.4,"sector":"Technology","signal_strength":"strong","key_drivers":["MACD bullish cross","Short-term uptrend (SMA 5>20)","High money flow"]},{"ticker":"UNH","score":78,"ml_prob":0.68,"momentum":74,"volume":80,"volatility":77,"price":542.7,"predicted_return":3.8,"sector":"Healthcare","signal_strength":"strong","key_drivers":["RSI oversold bounce","Above 200-day SMA","Strong trend (ADX)"]},{"ticker":"CAT","score":75,"ml_prob":0.65,"momentum":71,"volume":78,"volatility":75,"price":385.2,"predicted_return":3.2,"sector":"Industrials","signal_strength":"strong","key_drivers":["Strong 1-month momentum","Volume surge","MACD bullish cross"]}],"market_regime":"bullish","feature_importance":{"momentum_1m":0.1182,"rsi_14":0.0934,"ret_5d":0.0871,"macd_hist":0.0765,"rel_volume":0.0723,"bb_pctb":0.0698,"vol_20d":0.0645,"sma_5_20":0.0612,"mfi_14":0.0578,"adx_14":0.0534,"stoch_k":0.0489,"ret_20d":0.0456,"dist_52w_high":0.0423,"volume_trend":0.0387,"momentum_3m":0.0354},"scan_stats":{"total_scanned":503,"passed_filters":478,"scan_time_sec":127.3}};
+
+let DATA = null;
+let currentView = '1week';
+
+// ========== LOAD DATA ==========
+async function loadData() {
+  try {
+    const resp = await fetch('data/predictions.json');
+    if (resp.ok) DATA = await resp.json();
+    else throw new Error();
+  } catch {
+    DATA = SAMPLE_DATA;
+  }
+  render();
+}
+
+// ========== RENDER ==========
+function render() {
+  renderHeader();
+  renderCards();
+  renderStats();
+  renderSectors();
+  renderFeatureImportance();
+  renderAccuracy();
+  animateCounters();
+}
+
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  renderCards();
+}
+
+function scoreColor(s) { return s >= 70 ? 'score-green' : s >= 50 ? 'score-yellow' : 'score-red'; }
+function scoreHex(s) { return s >= 70 ? '#00e676' : s >= 50 ? '#ffd740' : '#ff5252'; }
+
+function renderHeader() {
+  const d = new Date(DATA.generated_at);
+  document.getElementById('scanTime').textContent = 'Last scan: ' + d.toLocaleString();
+  const rb = document.getElementById('regimeBadge');
+  rb.textContent = DATA.market_regime.toUpperCase();
+  rb.className = 'badge badge-' + DATA.market_regime;
+  document.getElementById('accBadge').textContent = `Accuracy: ${(DATA.model_accuracy['1week']*100).toFixed(1)}% / ${(DATA.model_accuracy['1month']*100).toFixed(1)}%`;
+}
+
+function makeRing(value, color, size=44) {
+  const r = (size-6)/2, circ = 2*Math.PI*r, offset = circ*(1-value/100);
+  return `<div class="ring-container"><svg viewBox="0 0 ${size} ${size}">
+    <circle class="ring-bg" cx="${size/2}" cy="${size/2}" r="${r}"/>
+    <circle class="ring-fg" cx="${size/2}" cy="${size/2}" r="${r}" stroke="${color}"
+      stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/>
+    <text class="ring-value" x="${size/2}" y="${size/2}" text-anchor="middle" dominant-baseline="central"
+      transform="rotate(90 ${size/2} ${size/2})">${value}</text>
+  </svg></div>`;
+}
+
+function makeSparkline() {
+  // Generate random-ish sparkline
+  const pts = [];
+  let y = 15;
+  for (let i=0; i<20; i++) { y += (Math.random()-0.45)*6; y=Math.max(2,Math.min(28,y)); pts.push(`${i*5.3},${y}`); }
+  const line = pts.join(' ');
+  const area = `0,30 ${line} ${(20-1)*5.3},30`;
+  return `<div class="sparkline"><svg viewBox="0 0 100 30" preserveAspectRatio="none">
+    <polygon class="spark-area" points="${area}"/>
+    <polyline class="spark-line" points="${line}"/>
+  </svg></div>`;
+}
+
+function renderCards() {
+  const key = currentView === '1week' ? 'top5_1week' : 'top5_1month';
+  const label = currentView === '1week' ? 'Top 5 — 1 Week Predictions' : 'Top 5 — 1 Month Predictions';
+  document.getElementById('cardsTitle').textContent = label;
+  const grid = document.getElementById('cardsGrid');
+  grid.innerHTML = DATA[key].map((s, i) => `
+    <div class="stock-card animate-in" onclick="toggleExpand(this)" style="animation-delay:${i*0.08}s">
+      <div class="card-top">
+        <div>
+          <div class="ticker">${s.ticker}</div>
+          <div class="sector-tag">${s.sector}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="score-big ${scoreColor(s.score)}">${s.score}</div>
+          <div class="score-label">SCORE</div>
+        </div>
+      </div>
+      <div class="card-meta">
+        <span class="price">$${s.price.toLocaleString()}</span>
+        <span class="predicted-ret ${s.predicted_return>=0?'ret-pos':'ret-neg'}">
+          ${s.predicted_return>=0?'+':''}${s.predicted_return}%
+        </span>
+        <span class="signal-badge signal-${s.signal_strength}">${s.signal_strength}</span>
+      </div>
+      ${makeSparkline()}
+      <div class="score-breakdown">
+        <div class="mini-score"><span class="label">ML</span>${makeRing(Math.round(s.ml_prob*100),'#448aff')}</div>
+        <div class="mini-score"><span class="label">Mom</span>${makeRing(s.momentum,'#00e676')}</div>
+        <div class="mini-score"><span class="label">Vol</span>${makeRing(s.volume,'#ff80ab')}</div>
+        <div class="mini-score"><span class="label">Vlt</span>${makeRing(s.volatility,'#ffd740')}</div>
+      </div>
+      <div class="drivers">
+        ${s.key_drivers.map(d=>`<div class="driver">${d}</div>`).join('')}
+      </div>
+      <div class="card-details">
+        <div style="font-size:0.8rem;color:var(--text2)">
+          <div style="margin-bottom:6px"><strong>ML Probability:</strong> ${(s.ml_prob*100).toFixed(1)}%</div>
+          <div style="margin-bottom:6px"><strong>Momentum Score:</strong> ${s.momentum}/100</div>
+          <div style="margin-bottom:6px"><strong>Volume Score:</strong> ${s.volume}/100</div>
+          <div><strong>Volatility Score:</strong> ${s.volatility}/100</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleExpand(el) { el.classList.toggle('expanded'); }
+
+function renderStats() {
+  const s = DATA.scan_stats;
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card animate-in"><div class="stat-value counter" data-target="${s.total_scanned}">0</div><div class="stat-label">Stocks Scanned</div></div>
+    <div class="stat-card animate-in"><div class="stat-value counter" data-target="${s.passed_filters}">0</div><div class="stat-label">Passed Filters</div></div>
+    <div class="stat-card animate-in"><div class="stat-value">${s.scan_time_sec}s</div><div class="stat-label">Scan Time</div></div>
+    <div class="stat-card animate-in"><div class="stat-value" style="text-transform:capitalize;color:${DATA.market_regime==='bullish'?'var(--green)':DATA.market_regime==='bearish'?'var(--red)':'var(--yellow)'}">${DATA.market_regime}</div><div class="stat-label">Market Regime</div></div>
+  `;
+}
+
+function renderSectors() {
+  const sectors = {};
+  [...DATA.top5_1week, ...DATA.top5_1month].forEach(s => {
+    if (!sectors[s.sector]) sectors[s.sector] = [];
+    sectors[s.sector].push(s.score);
+  });
+  const grid = document.getElementById('sectorGrid');
+  const colors = ['#448aff','#7c4dff','#00e676','#ff80ab','#ffd740','#18ffff','#ff5252'];
+  grid.innerHTML = Object.entries(sectors).map(([sec, scores], i) => {
+    const avg = Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+    const c = colors[i % colors.length];
+    return `<div class="sector-cell" style="background:${c}22;color:${c};border:1px solid ${c}44">${sec}<br><strong>${avg}</strong></div>`;
+  }).join('');
+}
+
+const FI_CATEGORIES = {
+  momentum_1m:'momentum', momentum_3m:'momentum', rsi_14:'tech', ret_1d:'momentum', ret_5d:'momentum',
+  ret_10d:'momentum', ret_20d:'momentum', ret_60d:'momentum', macd_line:'tech', macd_signal:'tech',
+  macd_hist:'tech', bb_pctb:'tech', bb_bandwidth:'tech', sma_5_20:'tech', sma_10_50:'tech', sma_20_200:'tech',
+  stoch_k:'tech', stoch_d:'tech', rel_volume:'volume', volume_trend:'volume', obv_trend:'volume',
+  mfi_14:'volume', vol_20d:'volatility', vol_ratio:'volatility', atr_14_pct:'volatility', adx_14:'tech',
+  dist_52w_high:'price', dist_52w_low:'price'
+};
+const CAT_CLASS = {tech:'fi-cat-tech', momentum:'fi-cat-momentum', volume:'fi-cat-volume', volatility:'fi-cat-volatility', price:'fi-cat-price'};
+
+function renderFeatureImportance() {
+  const fi = DATA.feature_importance;
+  const entries = Object.entries(fi).slice(0,15);
+  const max = Math.max(...entries.map(e=>e[1]));
+  document.getElementById('fiChart').innerHTML = entries.map(([name, val]) => {
+    const cat = FI_CATEGORIES[name] || 'tech';
+    const pct = (val/max*100).toFixed(0);
+    return `<div class="fi-bar-row">
+      <div class="fi-label">${name.replace(/_/g,' ')}</div>
+      <div class="fi-bar-track"><div class="fi-bar ${CAT_CLASS[cat]}" style="width:0%" data-width="${pct}%">${(val*100).toFixed(1)}%</div></div>
+    </div>`;
+  }).join('');
+  // Animate bars
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.fi-bar').forEach(b=>{ b.style.width = b.dataset.width; });
+  });
+}
+
+function renderAccuracy() {
+  const a = DATA.model_accuracy;
+  document.getElementById('accPanel').innerHTML = `
+    <div class="acc-block">
+      <div class="acc-value">${(a['1week']*100).toFixed(1)}%</div>
+      <div class="acc-label">1-Week Model Accuracy</div>
+      <div class="acc-bar"><div class="acc-fill" style="width:${a['1week']*100}%"></div></div>
+    </div>
+    <div class="acc-block">
+      <div class="acc-value">${(a['1month']*100).toFixed(1)}%</div>
+      <div class="acc-label">1-Month Model Accuracy</div>
+      <div class="acc-bar"><div class="acc-fill" style="width:${a['1month']*100}%"></div></div>
+    </div>
+  `;
+}
+
+function toggleHow(btn) {
+  btn.classList.toggle('open');
+  document.getElementById('howContent').classList.toggle('open');
+}
+
+function animateCounters() {
+  document.querySelectorAll('.counter').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    if (isNaN(target)) return;
+    let current = 0;
+    const step = Math.max(1, Math.floor(target/40));
+    const interval = setInterval(() => {
+      current += step;
+      if (current >= target) { current = target; clearInterval(interval); }
+      el.textContent = current.toLocaleString();
+    }, 30);
+  });
+}
+
+// ========== INIT ==========
+loadData();
+</script>
+</body>
+</html>

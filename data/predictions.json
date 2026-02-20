@@ -1,0 +1,204 @@
+{
+  "generated_at": "2026-02-20T00:02:08",
+  "model_accuracy": {
+    "1week": 0.5139,
+    "1month": 0.5074
+  },
+  "top5_1week": [
+    {
+      "ticker": "FDX",
+      "score": 63,
+      "ml_prob": 0.504,
+      "momentum": 91,
+      "volume": 68,
+      "volatility": 60,
+      "price": 383.14,
+      "predicted_return": 0.0,
+      "sector": "Other",
+      "signal_strength": "moderate",
+      "key_drivers": [
+        "RSI overbought momentum",
+        "MACD bullish cross",
+        "Short-term uptrend (SMA 5>20)"
+      ]
+    },
+    {
+      "ticker": "DAY",
+      "score": 62,
+      "ml_prob": 0.509,
+      "momentum": 59,
+      "volume": 80,
+      "volatility": 80,
+      "price": 69.86,
+      "predicted_return": 0.1,
+      "sector": "Other",
+      "signal_strength": "moderate",
+      "key_drivers": [
+        "MACD bullish cross",
+        "Volume surge",
+        "Above 200-day SMA"
+      ]
+    },
+    {
+      "ticker": "DE",
+      "score": 62,
+      "ml_prob": 0.477,
+      "momentum": 93,
+      "volume": 88,
+      "volatility": 41,
+      "price": 662.0,
+      "predicted_return": -0.2,
+      "sector": "Other",
+      "signal_strength": "moderate",
+      "key_drivers": [
+        "RSI overbought momentum",
+        "MACD bullish cross",
+        "Volume surge"
+      ]
+    },
+    {
+      "ticker": "EIX",
+      "score": 62,
+      "ml_prob": 0.5,
+      "momentum": 84,
+      "volume": 72,
+      "volatility": 58,
+      "price": 72.66,
+      "predicted_return": -0.0,
+      "sector": "Other",
+      "signal_strength": "moderate",
+      "key_drivers": [
+        "RSI overbought momentum",
+        "MACD bullish cross",
+        "Volume surge"
+      ]
+    },
+    {
+      "ticker": "TRGP",
+      "score": 62,
+      "ml_prob": 0.504,
+      "momentum": 83,
+      "volume": 73,
+      "volatility": 63,
+      "price": 224.16,
+      "predicted_return": 0.0,
+      "sector": "Other",
+      "signal_strength": "moderate",
+      "key_drivers": [
+        "RSI overbought momentum",
+        "MACD bullish cross",
+        "Volume surge"
+      ]
+    }
+  ],
+  "top5_1month": [
+    {
+      "ticker": "DE",
+      "score": 63,
+      "ml_prob": 0.497,
+      "momentum": 93,
+      "volume": 88,
+      "volatility": 41,
+      "price": 662.0,
+      "predicted_return": -0.0,
+      "sector": "Other",
+      "signal_strength": "moderate",
+      "key_drivers": [
+        "RSI overbought momentum",
+        "MACD bullish cross",
+        "Volume surge"
+      ]
+    },
+    {
+      "ticker": "DAY",
+      "score": 62,
+      "ml_prob": 0.51,
+      "momentum": 59,
+      "volume": 80,
+      "volatility": 80,
+      "price": 69.86,
+      "predicted_return": 0.1,
+      "sector": "Other",
+      "signal_strength": "moderate",
+      "key_drivers": [
+        "MACD bullish cross",
+        "Volume surge",
+        "Above 200-day SMA"
+      ]
+    },
+    {
+      "ticker": "EIX",
+      "score": 62,
+      "ml_prob": 0.508,
+      "momentum": 84,
+      "volume": 72,
+      "volatility": 58,
+      "price": 72.66,
+      "predicted_return": 0.1,
+      "sector": "Other",
+      "signal_strength": "moderate",
+      "key_drivers": [
+        "RSI overbought momentum",
+        "MACD bullish cross",
+        "Volume surge"
+      ]
+    },
+    {
+      "ticker": "FDX",
+      "score": 62,
+      "ml_prob": 0.477,
+      "momentum": 91,
+      "volume": 68,
+      "volatility": 60,
+      "price": 383.14,
+      "predicted_return": -0.2,
+      "sector": "Other",
+      "signal_strength": "moderate",
+      "key_drivers": [
+        "RSI overbought momentum",
+        "MACD bullish cross",
+        "Short-term uptrend (SMA 5>20)"
+      ]
+    },
+    {
+      "ticker": "JNJ",
+      "score": 62,
+      "ml_prob": 0.501,
+      "momentum": 81,
+      "volume": 61,
+      "volatility": 75,
+      "price": 246.91,
+      "predicted_return": 0.0,
+      "sector": "Healthcare",
+      "signal_strength": "moderate",
+      "key_drivers": [
+        "RSI overbought momentum",
+        "MACD bullish cross",
+        "Short-term uptrend (SMA 5>20)"
+      ]
+    }
+  ],
+  "market_regime": "bullish",
+  "feature_importance": {
+    "sma_20_200": 0.0747,
+    "dist_52w_low": 0.0689,
+    "vol_20d": 0.063,
+    "sma_10_50": 0.0564,
+    "dist_52w_high": 0.0562,
+    "macd_hist": 0.056,
+    "macd_signal": 0.055,
+    "atr_14_pct": 0.0518,
+    "ret_10d": 0.0457,
+    "adx_14": 0.0448,
+    "bb_bandwidth": 0.0445,
+    "momentum_3m": 0.0409,
+    "vol_ratio": 0.0358,
+    "stoch_d": 0.0333,
+    "macd_line": 0.0331
+  },
+  "scan_stats": {
+    "total_scanned": 501,
+    "passed_filters": 496,
+    "scan_time_sec": 45.2
+  }
+}

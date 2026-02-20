@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-02-19T19:30:00",
+  "model_accuracy": {"1week": 0.572, "1month": 0.548},
+  "top5_1week": [
+    {"ticker": "NVDA", "score": 91, "ml_prob": 0.82, "momentum": 88, "volume": 95, "volatility": 72, "price": 892.50, "predicted_return": 4.8, "sector": "Technology", "signal_strength": "strong", "key_drivers": ["Strong 1-month momentum", "Volume surge", "Near 52-week high"]},
+    {"ticker": "META", "score": 86, "ml_prob": 0.76, "momentum": 82, "volume": 88, "volatility": 78, "price": 612.30, "predicted_return": 3.5, "sector": "Technology", "signal_strength": "strong", "key_drivers": ["MACD bullish cross", "High money flow", "Above 200-day SMA"]},
+    {"ticker": "AVGO", "score": 83, "ml_prob": 0.73, "momentum": 79, "volume": 85, "volatility": 80, "price": 1845.20, "predicted_return": 3.1, "sector": "Technology", "signal_strength": "strong", "key_drivers": ["Strong trend (ADX)", "Volume surge", "Short-term uptrend (SMA 5>20)"]},
+    {"ticker": "LLY", "score": 79, "ml_prob": 0.69, "momentum": 75, "volume": 82, "volatility": 76, "price": 834.10, "predicted_return": 2.6, "sector": "Healthcare", "signal_strength": "strong", "key_drivers": ["RSI oversold bounce", "Above 200-day SMA", "High money flow"]},
+    {"ticker": "GE", "score": 76, "ml_prob": 0.67, "momentum": 72, "volume": 80, "volatility": 74, "price": 182.40, "predicted_return": 2.2, "sector": "Industrials", "signal_strength": "strong", "key_drivers": ["MACD bullish cross", "Strong 1-month momentum", "Near 52-week high"]}
+  ],
+  "top5_1month": [
+    {"ticker": "AMZN", "score": 88, "ml_prob": 0.78, "momentum": 85, "volume": 90, "volatility": 75, "price": 228.90, "predicted_return": 6.2, "sector": "Consumer Cyclical", "signal_strength": "strong", "key_drivers": ["Strong 1-month momentum", "High money flow", "Above 200-day SMA"]},
+    {"ticker": "COST", "score": 84, "ml_prob": 0.74, "momentum": 80, "volume": 86, "volatility": 82, "price": 965.50, "predicted_return": 5.1, "sector": "Consumer Defensive", "signal_strength": "strong", "key_drivers": ["Near 52-week high", "Strong trend (ADX)", "Volume surge"]},
+    {"ticker": "ORCL", "score": 81, "ml_prob": 0.71, "momentum": 77, "volume": 84, "volatility": 79, "price": 178.30, "predicted_return": 4.4, "sector": "Technology", "signal_strength": "strong", "key_drivers": ["MACD bullish cross", "Short-term uptrend (SMA 5>20)", "High money flow"]},
+    {"ticker": "UNH", "score": 78, "ml_prob": 0.68, "momentum": 74, "volume": 80, "volatility": 77, "price": 542.70, "predicted_return": 3.8, "sector": "Healthcare", "signal_strength": "strong", "key_drivers": ["RSI oversold bounce", "Above 200-day SMA", "Strong trend (ADX)"]},
+    {"ticker": "CAT", "score": 75, "ml_prob": 0.65, "momentum": 71, "volume": 78, "volatility": 75, "price": 385.20, "predicted_return": 3.2, "sector": "Industrials", "signal_strength": "strong", "key_drivers": ["Strong 1-month momentum", "Volume surge", "MACD bullish cross"]}
+  ],
+  "market_regime": "bullish",
+  "feature_importance": {
+    "momentum_1m": 0.1182, "rsi_14": 0.0934, "ret_5d": 0.0871, "macd_hist": 0.0765, "rel_volume": 0.0723, "bb_pctb": 0.0698, "vol_20d": 0.0645, "sma_5_20": 0.0612, "mfi_14": 0.0578, "adx_14": 0.0534, "stoch_k": 0.0489, "ret_20d": 0.0456, "dist_52w_high": 0.0423, "volume_trend": 0.0387, "momentum_3m": 0.0354
+  },
+  "scan_stats": {"total_scanned": 503, "passed_filters": 478, "scan_time_sec": 127.3}
+}
